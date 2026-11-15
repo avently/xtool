@@ -10,9 +10,19 @@ import Foundation
 import Dependencies
 
 public protocol AnisetteDataProvider: Sendable {
+    /// Stored alongside login data. If the provider reports a new ID, we log out.
+    /// 
+    /// This is useful when switching Anisette provider implementations if the old
+    /// implementation's provisioning data won't work with the new implementation.
+    ///
+    /// The default implementation returns `nil`.
+    var providerID: String? { get }
+
     // This is a suggestion and not a requirement.
     func resetProvisioning() async
     func provisioningData() -> ProvisioningData?
+
+    func deviceInfo() async throws -> DeviceInfo
 
     func fetchAnisetteData() async throws -> AnisetteData
 }
@@ -24,6 +34,7 @@ public struct ProvisioningData: Hashable, Codable, Sendable {
 }
 
 extension AnisetteDataProvider {
+    public var providerID: String? { nil }
     public func provisioningData() -> ProvisioningData? { nil }
     public func resetProvisioning() async {}
 }
@@ -43,6 +54,11 @@ private struct AnisetteDataProviderDependencyKey: DependencyKey {
 private struct UnimplementedAnisetteDataProvider: AnisetteDataProvider {
     func fetchAnisetteData() async throws -> AnisetteData {
         let closure: () async throws -> AnisetteData = unimplemented()
+        return try await closure()
+    }
+
+    func deviceInfo() async throws -> DeviceInfo {
+        let closure: () async throws -> DeviceInfo = unimplemented()
         return try await closure()
     }
 }

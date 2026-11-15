@@ -36,7 +36,7 @@ jobs:
             Linux/packages/xtool-${{ matrix.host.arch }}.AppImage
             Linux/packages/xtool-${{ matrix.host.arch }}.AppImage.zsync
   build-mac:
-    runs-on: macos-26
+    runs-on: xcode-27
     permissions:
       contents: write
     steps:
@@ -57,6 +57,7 @@ jobs:
           DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
           XTOOL_VERSION: ${{ github.ref_name }}
         run: |
+          brew install -y xcodegen
           cd macOS
           bundle exec fastlane package
       - name: Upload artifacts

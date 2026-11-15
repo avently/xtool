@@ -137,6 +137,10 @@ public struct Planner: Sendable {
                 throw StringError("Could not find target '\(targetName)' in package '\(targetPackage.name)'")
             }
             guard visited.insert(targetName).inserted else { continue }
+            // Macro targets are compiler plugins that run on the host, not code
+            // linked into the iOS app. Skip them to avoid resolving their
+            // host-only dependencies (e.g. SwiftSyntaxMacros).
+            if target.type == "macro" { continue }
             if target.moduleType == "BinaryTarget" {
                 resources.append(.binaryTarget(name: targetName))
             }
@@ -244,10 +248,9 @@ public struct Planner: Sendable {
     }
 
     private func _dumpAction(arguments: [String], path: String) async throws -> Data {
-        let dumpConfig = try await buildSettings.swiftPMInvocation(
+        let dumpConfig = try await buildSettings.withPackagePath(path).swiftPMInvocation(
             forTool: "package",
             arguments: arguments,
-            packagePathOverride: path
         )
         return try await Subprocess.run(
             dumpConfig,
@@ -409,6 +412,7 @@ private struct PackageDump: Decodable {
     struct Target: Decodable {
         let name: String
         let moduleType: String
+        let type: String?
         let productDependencies: [String]?
         let targetDependencies: [String]?
         let resources: [Resource]?
