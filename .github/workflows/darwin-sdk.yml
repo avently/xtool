@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   build-darwin-sdk:
-    runs-on: macos-27
+    runs-on: xcode-27
     timeout-minutes: 150
     env:
       GH_TOKEN: ${{ github.token }}
