@@ -6,7 +6,7 @@ on:
       xcode_version:
         description: "Xcode a usar (debe coincidir con el swift local)"
         required: false
-        default: "Xcode_26.6"
+        default: "Xcode_27.1"
       split_size:
         description: "Tamaño de cada parte (split) para subir como release asset"
         required: false
@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   build-darwin-sdk:
-    runs-on: macos-26
+    runs-on: macos-27
     timeout-minutes: 150
     env:
       GH_TOKEN: ${{ github.token }}
